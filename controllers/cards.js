@@ -11,7 +11,7 @@ const postCard = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.send({ card }))
+    .then((card) => res.send({ data: card }))
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
@@ -32,7 +32,7 @@ const likeCard = (req, res) => {
       if (!card) {
         return res.status(404).send({ message: 'Карточка не найдена' });
       }
-      return res.send({ card });
+      return res.send({ data: card });
     })
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
