@@ -12,7 +12,12 @@ const postCard = (req, res) => {
 
   Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Данные новой карточки невалидны' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const deleteCard = (req, res) => {
@@ -23,7 +28,12 @@ const deleteCard = (req, res) => {
       }
       return res.send({ data: card });
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Передан некорректный id карточки' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const likeCard = (req, res) => {
@@ -34,7 +44,12 @@ const likeCard = (req, res) => {
       }
       return res.send({ data: card });
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Передан некорректный id карточки' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 const dislikeCard = (req, res) => {
@@ -45,7 +60,12 @@ const dislikeCard = (req, res) => {
       }
       return res.send({ data: card });
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Передан некорректный id карточки' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports = {
