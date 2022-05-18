@@ -3,7 +3,7 @@ const User = require('../models/user');
 const getUsers = (_, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка' }));
 };
 
 const getUserById = (req, res) => {
@@ -18,7 +18,7 @@ const getUserById = (req, res) => {
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Передан невалидный id пользователя' });
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -31,7 +31,7 @@ const createUser = (req, res) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'При создании нового пользователя переданы невалидные данные' });
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -44,7 +44,7 @@ const updateUserInfo = (req, res) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'При обновлении данных пользователя переданы невалидные данные' });
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -54,7 +54,7 @@ const updateUserAvatar = (req, res) => {
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
     .then((user) => res.send({ data: user }))
     .catch(() => {
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
