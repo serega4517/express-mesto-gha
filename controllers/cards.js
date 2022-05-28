@@ -26,16 +26,15 @@ const postCard = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
-    // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!card) {
         return next(new NotFound('Карточка не найдена'));
       }
-      if (req.user._id !== card.owner.valueOf()) {
-        return next(new ForbiddenError('Невозможно удалить чужую карточку'));
+      if (req.user._id === card.owner.valueOf()) {
+        Card.findByIdAndDelete(req.params.cardId)
+          .then(() => res.send({ data: card }));
       }
-      Card.findByIdAndDelete(req.params.cardId)
-        .then(() => res.send({ data: card }));
+      return next(new ForbiddenError('Невозможно удалить чужую карточку'));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
