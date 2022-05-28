@@ -107,9 +107,7 @@ const login = (req, res, next) => {
           return res.send({ token });
         });
     })
-    .catch(() => {
-      return next(new AuthorizationError('Неправильные почта или пароль'));
-    });
+    .catch(() => next(new AuthorizationError('Неправильные почта или пароль')));
 };
 
 const getCurrentUser = (req, res, next) => {
