@@ -8,6 +8,18 @@ const BadRequest = require('../errors/BadRequest');
 const AuthorizationError = require('../errors/AuthorizationError');
 const ConflictError = require('../errors/ConflictError');
 
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      // почта и пароль совпали, создаем JWT сроком на неделю
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.send({ token });
+    })
+    .catch(() => next(new AuthorizationError('Неправильные почта или пароль')));
+};
+
 const getUsers = (_, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
@@ -16,6 +28,22 @@ const getUsers = (_, res, next) => {
 
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
+    .then((user) => {
+      if (!user) {
+        return next(new NotFound('Пользователь по указанному id не найден'));
+      }
+      return res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new BadRequest('Передан невалидный id пользователя'));
+      }
+      return next(err);
+    });
+};
+
+const getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         return next(new NotFound('Пользователь по указанному id не найден'));
@@ -87,46 +115,6 @@ const updateUserAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return next(new BadRequest('При обновлении данных пользователя переданы невалидные данные'));
-      }
-      return next(err);
-    });
-};
-
-const login = (req, res, next) => {
-  const { email, password } = req.body;
-
-  User.findOne({ email }).select('+password')
-    .then((user) => {
-      if (!user) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
-      }
-      // сравниваем переданный пароль и хеш из базы
-      return bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            // хеши не совпали — отклоняем промис
-            return Promise.reject(new Error('Неправильные почта или пароль'));
-          }
-          // почта и пароль совпали, создаем JWT сроком на неделю
-          const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-          return res.send({ token });
-        });
-    })
-    .catch(() => next(new AuthorizationError('Неправильные почта или пароль')));
-};
-
-const getCurrentUser = (req, res, next) => {
-  const { _id } = req.user;
-  User.findById(_id)
-    .then((user) => {
-      if (!user) {
-        return next(new NotFound('Пользователь по указанному id не найден'));
-      }
-      return res.send({ data: user });
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return next(new BadRequest('Передан невалидный id пользователя'));
       }
       return next(err);
     });
