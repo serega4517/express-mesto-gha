@@ -25,16 +25,18 @@ const postCard = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  Card.findById(req.params.cardId)
+  const { cardId } = req.params;
+
+  return Card.findById(cardId)
+    .orFail(() => {
+      throw new NotFound('Карточка не найдена');
+    })
     .then((card) => {
-      if (!card) {
-        return next(new NotFound('Карточка не найдена'));
-      }
       if (req.user._id === card.owner.valueOf()) {
-        Card.findByIdAndDelete(req.params.cardId)
-          .then(() => res.send({ data: card }));
+        Card.findByIdAndRemove(cardId).then(() => res.status(200).send(card));
+      } else {
+        throw new ForbiddenError('Невозможно удалить чужую карточку');
       }
-      return next(new ForbiddenError('Невозможно удалить чужую карточку'));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
