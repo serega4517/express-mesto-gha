@@ -50,12 +50,7 @@ const getCurrentUser = (req, res, next) => {
       }
       return res.send({ data: user });
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return next(new BadRequest('Передан невалидный id пользователя'));
-      }
-      return next(err);
-    });
+    .catch((err) => next(err));
 };
 
 const createUser = (req, res, next) => {
