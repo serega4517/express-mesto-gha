@@ -2,6 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
+const helmet = require('helmet');
 
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
@@ -18,6 +19,8 @@ const app = express();
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.use(express.json());
+
+app.use(helmet()); // Настройка заголовков HTTP
 
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateUser, createUser);
