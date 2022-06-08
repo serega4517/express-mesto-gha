@@ -11,6 +11,7 @@ const auth = require('./middlewares/auth');
 const errorsHandler = require('./middlewares/errorsHandler');
 const { validateLogin, validateUser } = require('./middlewares/validation');
 const NotFound = require('./errors/NotFound');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 
@@ -22,6 +23,8 @@ app.use(express.json());
 
 app.use(helmet()); // Настройка заголовков HTTP
 
+app.use(requestLogger); // подключаем логгер запросов
+
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateUser, createUser);
 
@@ -29,6 +32,8 @@ app.use(auth);
 
 app.use(usersRouter);
 app.use(cardsRouter);
+
+app.use(errorLogger); // подключаем логгер ошибок
 
 app.use('/', (req, res, next) => {
   next(new NotFound('Страница не найдена'));
